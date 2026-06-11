@@ -54,14 +54,9 @@ def make_header() -> Header:
 
 def write_scores() -> None:
     with open("scores.dat", "wb") as f:
-        # header = Header(b"HSCR", 1, len(players))
         header = make_header()
         f.write(header.pack())
-        # f.write(struct.pack("<4sHH", b"HSCR", 1, len(players)))  # magic  # version
-        # for name, score, level in players:
         for player in players:
-            # f.write(struct.pack("<20sIH", name.encode(), score, level))
-            # player = Player(name.encode(), score, level)
             f.write(player.pack())
 
 
