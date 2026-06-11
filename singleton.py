@@ -7,12 +7,9 @@ class Singleton(type):
     _instances = {}
 
     def __call__(cls, *args, **kwds):
-        if cls in type(cls)._instances:
-            return type(cls)._instances[cls]
-        else:
-            obj = super().__call__(*args, **kwds)
-            type(cls)._instances[cls] = obj
-            return obj
+        if cls not in type(cls)._instances:
+            type(cls)._instances[cls] = super().__call__(*args, **kwds)
+        return type(cls)._instances[cls]
 
 
 class Logger(metaclass=Singleton):
