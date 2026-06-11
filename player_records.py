@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 # PYTHON_ARGCOMPLETE_OK
+from __future__ import annotations
 from dataclasses import dataclass
 import struct
 
@@ -15,6 +16,10 @@ class Header:
     def pack(self) -> bytes:
         return struct.pack(self.fmt, self.magic, self.version, self.num_players)
 
+    @classmethod
+    def from_file(cls, f) -> Header:
+        return Header(*struct.unpack(cls.fmt, f.read(struct.calcsize(cls.fmt))))
+
 
 @dataclass
 class Player:
@@ -25,6 +30,12 @@ class Player:
 
     def pack(self) -> bytes:
         return struct.pack(self.fmt, self.name.encode(), self.score, self.level)
+
+    @classmethod
+    def from_file(cls, f) -> Player:
+        player = Player(*struct.unpack(cls.fmt, f.read(struct.calcsize(cls.fmt))))
+        player.name = player.name.rstrip(b"\0").decode()
+        return player
 
 
 players = [
@@ -56,13 +67,10 @@ def write_scores() -> None:
 
 def read_scores() -> tuple[Header, list[Player]]:
     with open("scores.dat", "rb") as f:
-        magic, version, count = struct.unpack("<4sHH", f.read(8))
-        header: Header = Header(magic, version, count)
+        header = Header.from_file(f)
         players: list[Player] = []
-        for _ in range(count):
-            name, score, level = struct.unpack("<20sIH", f.read(26))
-            name = name.rstrip(b"\0").decode()
-            players.append(Player(name, score, level))
+        for _ in range(header.num_players):
+            players.append(Player.from_file(f))
         return header, players
 
 
