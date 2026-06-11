@@ -20,6 +20,10 @@ class Header:
     def from_file(cls, f) -> Header:
         return Header(*struct.unpack(cls.fmt, f.read(struct.calcsize(cls.fmt))))
 
+    @classmethod
+    def from_int(cls, count) -> Header:
+        return Header(b"HSCR", 1, count)
+
 
 @dataclass
 class Player:
@@ -48,13 +52,9 @@ players = [
 ]
 
 
-def make_header() -> Header:
-    return Header(b"HSCR", 1, len(players))
-
-
 def write_scores() -> None:
     with open("scores.dat", "wb") as f:
-        header = make_header()
+        header = Header.from_int(len(players))
         f.write(header.pack())
         for player in players:
             f.write(player.pack())
@@ -71,4 +71,4 @@ def read_scores() -> tuple[Header, list[Player]]:
 
 if __name__ == "__main__":
     write_scores()
-    assert (make_header(), players) == read_scores()
+    assert (Header.from_int(len(players)), players) == read_scores()
