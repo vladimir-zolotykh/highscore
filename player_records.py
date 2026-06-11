@@ -68,9 +68,4 @@ def read_scores() -> tuple[Header, list[Player]]:
 
 if __name__ == "__main__":
     write_scores()
-    _header, _players = read_scores()
-    # _players = read_scores()[1]
-    # print(players)
-    # print(_players[1:])
-    assert _header == make_header()
-    assert players == _players
+    assert (make_header(), players) == read_scores()
