@@ -2,6 +2,8 @@
 ARCHIVE
 www/
 SOW/
+scores.dat
+scores.py
 .metabunch.py
 .board_note_history.db
 example1.py
