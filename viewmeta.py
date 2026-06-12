@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 # PYTHON_ARGCOMPLETE_OK
+from typing import BinaryIO, Self
 import struct
 
 
@@ -10,19 +11,21 @@ class Field:
         self.offset = offset
 
 
-class FieldStr:
+class FieldStr(Field):
     def __init__(self, name: str, offset: int, fmt: str):
         super().__init__(name, offset)
         self.fmt = fmt
 
     def __get__(self, instance, owner=None):
-        if instance in None:
+        if instance is None:
             return self
-        t = struct.unpack_from(self.fmt, instance.view[self.offset])
+        a = self.offset
+        z = a + struct.calcsize(self.fmt)
+        t = struct.unpack_from(self.fmt, instance.view[a:z])
         return t[0] if len(t) == 1 else t
 
 
-class FieldType:
+class FieldType(Field):
     def __init__(self, name: str, offset: int, typ: type):
         super().__init__(name, offset)
         self.typ = typ
@@ -41,13 +44,15 @@ class ViewMeta(type):
         offset = 0
         for k, v in clsdict.items():
             if k[:2] == "__" and k[-2:] == "__":
-                pass
+                continue
             if isinstance(v, str):
                 dcopy[k] = FieldStr(k, offset, v)
                 offset += struct.calcsize(v)
-            else:
+            elif isinstance(v, ViewMeta):
                 dcopy[k] = FieldType(k, offset, v)
                 offset += v.view_size
+            else:
+                pass
         dcopy["view_size"] = offset
         return super().__new__(mcls, clsname, bases, dcopy)
 
@@ -59,18 +64,32 @@ class View(metaclass=ViewMeta):
 
 class Header(View):
     magic = "<4s"
-    versopm = "H"
-    num_players = "H"
+    version = "<H"
+    num_players = "<H"
+
+    @classmethod
+    def from_file(cls, f: BinaryIO) -> Self:
+        return cls(f.read(cls.view_size))
 
 
 class Player(View):
     name = "<20s"
-    score = "I"
-    level = "H"
+    score = "<I"
+    level = "<H"
+
+    @classmethod
+    def from_file(cls, f: BinaryIO) -> Self:
+        return cls(f.read(cls.view_size))
+
+
+class ThreePlayers(View):
+    player1 = Player
+    player2 = Player
+    player3 = Player
 
 
 if __name__ == "__main__":
-    with open("score.bin", "rb") as f:
+    with open("scores.dat", "rb") as f:
         header = Header(f.read(Header.view_size))
         print(header)
         for _ in range(header.num_players):
