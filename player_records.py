@@ -63,9 +63,7 @@ def write_scores() -> None:
 def read_scores() -> tuple[Header, list[Player]]:
     with open("scores.dat", "rb") as f:
         header = Header.from_file(f)
-        players: list[Player] = []
-        for _ in range(header.num_players):
-            players.append(Player.from_file(f))
+        players: list[Player] = [Player.from_file(f) for _ in range(header.num_players)]
         return header, players
 
 
