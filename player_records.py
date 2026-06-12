@@ -2,14 +2,15 @@
 # -*- coding: utf-8 -*-
 # PYTHON_ARGCOMPLETE_OK
 from __future__ import annotations
-from typing import Any
+from typing import Any, BinaryIO
 from dataclasses import dataclass
 import struct
 
 
 @dataclass
 class Header:
-    magic: str
+    # magic: str
+    magic: bytes
     version: int
     num_players: int
     fmt: str = "<4sHH"
@@ -21,15 +22,16 @@ class Header:
         f.write(self.pack())
 
     @classmethod
-    def from_file(cls, f) -> Header:
+    def from_file(cls, f: BinaryIO) -> Header:
         return Header(*struct.unpack(cls.fmt, cls.read(f)))
 
     @classmethod
-    def read(cls, f) -> bytes:
+    def read(cls, f: BinaryIO) -> bytes:
         return f.read(struct.calcsize(cls.fmt))
 
     @classmethod
-    def from_int(cls, count) -> Header:
+    def from_int(cls, count: int) -> Header:
+        # return Header(b"HSCR", 1, count)
         return Header(b"HSCR", 1, count)
 
 
@@ -47,12 +49,12 @@ class Player:
         f.write(self.pack())
 
     @classmethod
-    def unpack(cls, f) -> tuple[Any, ...]:
+    def unpack(cls, f: BinaryIO) -> tuple[Any, ...]:
         tup = struct.unpack(cls.fmt, f.read(struct.calcsize(cls.fmt)))
         return tuple((tup[0].rstrip(b"\0").decode(), *tup[1:]))
 
     @classmethod
-    def from_file(cls, f) -> Player:
+    def from_file(cls, f: BinaryIO) -> Player:
         player = Player(*cls.unpack(f))
         return player
 
