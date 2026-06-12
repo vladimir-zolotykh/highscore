@@ -60,11 +60,8 @@ players = [
 
 def write_scores() -> None:
     with open("scores.dat", "wb") as f:
-        header = Header.from_int(len(players))
-        # f.write(header.pack())
-        header.write(f)
+        Header.from_int(len(players)).write(f)
         for player in players:
-            # f.write(player.pack())
             player.write(f)
 
 
