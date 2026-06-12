@@ -18,7 +18,7 @@ class Header:
     def pack(self) -> bytes:
         return struct.pack(self.fmt, self.magic, self.version, self.num_players)
 
-    def write(self, f):
+    def write(self, f: BinaryIO) -> None:
         f.write(self.pack())
 
     @classmethod
@@ -45,7 +45,7 @@ class Player:
     def pack(self) -> bytes:
         return struct.pack(self.fmt, self.name.encode(), self.score, self.level)
 
-    def write(self, f):
+    def write(self, f: BinaryIO) -> None:
         f.write(self.pack())
 
     @classmethod
