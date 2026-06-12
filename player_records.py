@@ -21,7 +21,11 @@ class Header:
 
     @classmethod
     def from_file(cls, f) -> Header:
-        return Header(*struct.unpack(cls.fmt, f.read(struct.calcsize(cls.fmt))))
+        return Header(*struct.unpack(cls.fmt, cls.read(f)))
+
+    @classmethod
+    def read(cls, f) -> bytes:
+        return f.read(struct.calcsize(cls.fmt))
 
     @classmethod
     def from_int(cls, count) -> Header:
