@@ -48,15 +48,11 @@ class Player:
 
     @classmethod
     def unpack(cls, f) -> tuple[Any, ...]:
-        buf = f.read(struct.calcsize(cls.fmt))
-        tup = struct.unpack(cls.fmt, buf)
-        tup2 = tuple((tup[0].rstrip(b"\0").decode(), *tup[1:]))
-        return tup2
+        tup = struct.unpack(cls.fmt, f.read(struct.calcsize(cls.fmt)))
+        return tuple((tup[0].rstrip(b"\0").decode(), *tup[1:]))
 
     @classmethod
     def from_file(cls, f) -> Player:
-        # player = Player(*struct.unpack(cls.fmt, f.read(struct.calcsize(cls.fmt))))
-        # player.name = player.name.rstrip(b"\0").decode()
         player = Player(*cls.unpack(f))
         return player
 
