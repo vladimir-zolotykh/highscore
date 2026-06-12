@@ -16,6 +16,9 @@ class Header:
     def pack(self) -> bytes:
         return struct.pack(self.fmt, self.magic, self.version, self.num_players)
 
+    def write(self, f):
+        f.write(self.pack())
+
     @classmethod
     def from_file(cls, f) -> Header:
         return Header(*struct.unpack(cls.fmt, f.read(struct.calcsize(cls.fmt))))
@@ -34,6 +37,9 @@ class Player:
 
     def pack(self) -> bytes:
         return struct.pack(self.fmt, self.name.encode(), self.score, self.level)
+
+    def write(self, f):
+        f.write(self.pack())
 
     @classmethod
     def from_file(cls, f) -> Player:
@@ -55,9 +61,11 @@ players = [
 def write_scores() -> None:
     with open("scores.dat", "wb") as f:
         header = Header.from_int(len(players))
-        f.write(header.pack())
+        # f.write(header.pack())
+        header.write(f)
         for player in players:
-            f.write(player.pack())
+            # f.write(player.pack())
+            player.write(f)
 
 
 def read_scores() -> tuple[Header, list[Player]]:
