@@ -56,6 +56,13 @@ class ViewMeta(type):
                 dcopy[k] = FieldType(k, offset, v)
                 fields.append(k)
                 offset += v.view_size
+            elif isinstance(v, tuple):
+                factory, _range = v
+                for i in _range:
+                    new_k = f"{k}_{str(i)}"
+                    dcopy[new_k] = FieldType(new_k, offset, factory)
+                    fields.append(new_k)
+                    offset += factory.view_size
             else:
                 pass
         dcopy["view_size"] = offset
@@ -88,9 +95,7 @@ class Player(View):
 
 
 class ThreePlayers(View):
-    player1 = Player
-    player2 = Player
-    player3 = Player
+    player = (Player, range(3))
 
 
 def as_csv(view) -> str:
