@@ -22,7 +22,8 @@ class FieldStr(Field):
         a = self.offset
         z = a + struct.calcsize(self.fmt)
         t = struct.unpack_from(self.fmt, instance.view[a:z])
-        return t[0] if len(t) == 1 else t
+        assert len(t) == 1
+        return t[0].rstrip(b"\0").decode() if self.fmt[-1] == "s" else t[0]
 
 
 class FieldType(Field):
@@ -42,18 +43,22 @@ class ViewMeta(type):
     def __new__(mcls, clsname, bases, clsdict):
         dcopy = dict(clsdict)
         offset = 0
+        fields = []
         for k, v in clsdict.items():
             if k[:2] == "__" and k[-2:] == "__":
                 continue
             if isinstance(v, str):
                 dcopy[k] = FieldStr(k, offset, v)
+                fields.append(k)
                 offset += struct.calcsize(v)
             elif isinstance(v, ViewMeta):
                 dcopy[k] = FieldType(k, offset, v)
+                fields.append(k)
                 offset += v.view_size
             else:
                 pass
         dcopy["view_size"] = offset
+        dcopy["_fields"] = fields
         return super().__new__(mcls, clsname, bases, dcopy)
 
 
@@ -88,10 +93,14 @@ class ThreePlayers(View):
     player3 = Player
 
 
+def as_csv(view) -> str:
+    return ", ".join(f"{k}={getattr(view, k)}" for k in view._fields)
+
+
 if __name__ == "__main__":
     with open("scores.dat", "rb") as f:
-        header = Header(f.read(Header.view_size))
-        print(header)
+        header = Header.from_file(f)
+        print(as_csv(header))
         for _ in range(header.num_players):
             player = Player.from_file(f)
-            print(player)
+            print(as_csv(player))
