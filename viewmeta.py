@@ -77,19 +77,11 @@ class Header(View):
     version = "<H"
     num_players = "<H"
 
-    # @classmethod
-    # def from_file(cls, f: BinaryIO) -> Self:
-    #     return cls(f.read(cls.view_size))
-
 
 class Player(View):
     name = "<20s"
     score = "<I"
     level = "<H"
-
-    # @classmethod
-    # def from_file(cls, f: BinaryIO) -> Self:
-    #     return cls(f.read(cls.view_size))
 
 
 class ThreePlayers(View):
