@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 # PYTHON_ARGCOMPLETE_OK
 from typing import BinaryIO, Self
+import io
 import struct
 
 
@@ -101,6 +102,12 @@ if __name__ == "__main__":
     with open("scores.dat", "rb") as f:
         header = Header.from_file(f)
         print(as_csv(header))
+        _data = f.read()
+        f1 = io.BytesIO(_data)
+        f2 = io.BytesIO(_data)
         for _ in range(header.num_players):
-            player = Player.from_file(f)
+            player = Player.from_file(f1)
+            print(as_csv(player))
+        for _ in range(header.num_players):
+            player = Player.from_file(f2)
             print(as_csv(player))
