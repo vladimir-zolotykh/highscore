@@ -33,7 +33,7 @@ class FieldType(Field):
         self.typ = typ
 
     def __get__(self, instance, owner=None):
-        if instance in None:
+        if instance is None:
             return self
         a = self.offset
         z = a + instance.view_size
@@ -83,6 +83,9 @@ class Player(View):
     score = "<I"
     level = "<H"
 
+    def __repr__(self):
+        return f"Player({self.name}, {self.score}, {self.level})"
+
 
 class ThreePlayers(View):
     player1 = Player
@@ -104,6 +107,5 @@ if __name__ == "__main__":
         for _ in range(header.num_players):
             player = Player.from_file(f1)
             print(as_csv(player))
-        for _ in range(header.num_players):
-            player = Player.from_file(f2)
-            print(as_csv(player))
+        players3 = ThreePlayers.from_file(f2)
+        print(as_csv(players3))
