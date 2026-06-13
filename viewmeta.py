@@ -67,15 +67,19 @@ class View(metaclass=ViewMeta):
     def __init__(self, bytesdata: bytes):
         self.view = memoryview(bytesdata)
 
+    @classmethod
+    def from_file(cls, f: BinaryIO) -> Self:
+        return cls(f.read(cls.view_size))
+
 
 class Header(View):
     magic = "<4s"
     version = "<H"
     num_players = "<H"
 
-    @classmethod
-    def from_file(cls, f: BinaryIO) -> Self:
-        return cls(f.read(cls.view_size))
+    # @classmethod
+    # def from_file(cls, f: BinaryIO) -> Self:
+    #     return cls(f.read(cls.view_size))
 
 
 class Player(View):
@@ -83,9 +87,9 @@ class Player(View):
     score = "<I"
     level = "<H"
 
-    @classmethod
-    def from_file(cls, f: BinaryIO) -> Self:
-        return cls(f.read(cls.view_size))
+    # @classmethod
+    # def from_file(cls, f: BinaryIO) -> Self:
+    #     return cls(f.read(cls.view_size))
 
 
 class ThreePlayers(View):
