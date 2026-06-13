@@ -21,9 +21,6 @@ class FieldStr(Field):
         if instance is None:
             return self
         s = slice(self.offset, self.offset + struct.calcsize(self.fmt))
-        # a = self.offset
-        # z = a + struct.calcsize(self.fmt)
-        # t = struct.unpack_from(self.fmt, instance.view[a:z])
         t = struct.unpack_from(self.fmt, instance.view[s])
         assert len(t) == 1
         return t[0].rstrip(b"\0").decode() if self.fmt[-1] == "s" else t[0]
