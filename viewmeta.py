@@ -27,15 +27,15 @@ class FieldStr(Field):
 
 
 class FieldType(Field):
-    def __init__(self, name: str, offset: int, typ: type):
+    def __init__(self, name: str, offset: int, factory: type):
         super().__init__(name, offset)
-        self.typ = typ
+        self.factory = factory
 
     def __get__(self, instance, owner=None):
         if instance is None:
             return self
         s = slice(self.offset, self.offset + instance.view_size)
-        return self.typ(instance.view[s])
+        return self.factory(instance.view[s])
 
 
 class ViewMeta(type):
