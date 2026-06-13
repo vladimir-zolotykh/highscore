@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 # PYTHON_ARGCOMPLETE_OK
-from typing import BinaryIO, Self
+from typing import BinaryIO, Self, ClassVar
 import io
 import struct
 
@@ -39,6 +39,8 @@ class FieldType(Field):
 
 
 class ViewMeta(type):
+    view_size: ClassVar[int]
+
     def __new__(mcls, clsname, bases, clsdict):
         dcopy = dict(clsdict)
         offset = 0
@@ -69,6 +71,8 @@ class ViewMeta(type):
 
 
 class View(metaclass=ViewMeta):
+    _fields: ClassVar[list[str]]
+
     def __init__(self, bytesdata: bytes):
         self.view = memoryview(bytesdata)
 
@@ -96,7 +100,7 @@ class ThreePlayers(View):
     player = (Player, range(3))
 
 
-def as_csv(view) -> str:
+def as_csv(view: View) -> str:
     return ", ".join(f"{k}={getattr(view, k)}" for k in view._fields)
 
 
@@ -107,7 +111,7 @@ if __name__ == "__main__":
         _data = f.read()
         f1 = io.BytesIO(_data)
         f2 = io.BytesIO(_data)
-        for _ in range(header.num_players):
+        for _ in range(int(header.num_players)):
             player = Player.from_file(f1)
             print(as_csv(player))
         players3 = ThreePlayers.from_file(f2)
