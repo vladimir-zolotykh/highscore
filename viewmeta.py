@@ -20,9 +20,11 @@ class FieldStr(Field):
     def __get__(self, instance, owner=None):
         if instance is None:
             return self
-        a = self.offset
-        z = a + struct.calcsize(self.fmt)
-        t = struct.unpack_from(self.fmt, instance.view[a:z])
+        s = slice(self.offset, self.offset + struct.calcsize(self.fmt))
+        # a = self.offset
+        # z = a + struct.calcsize(self.fmt)
+        # t = struct.unpack_from(self.fmt, instance.view[a:z])
+        t = struct.unpack_from(self.fmt, instance.view[s])
         assert len(t) == 1
         return t[0].rstrip(b"\0").decode() if self.fmt[-1] == "s" else t[0]
 
@@ -35,9 +37,8 @@ class FieldType(Field):
     def __get__(self, instance, owner=None):
         if instance is None:
             return self
-        a = self.offset
-        z = a + instance.view_size
-        return self.typ(instance.view[a:z])
+        s = slice(self.offset, self.offset + instance.view_size)
+        return self.typ(instance.view[s])
 
 
 class ViewMeta(type):
