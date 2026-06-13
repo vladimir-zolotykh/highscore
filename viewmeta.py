@@ -54,7 +54,7 @@ class ViewMeta(type):
                 dcopy[k] = FieldType(k, offset, v)
                 fields.append(k)
                 offset += v.view_size
-            elif isinstance(v, tuple):
+            elif isinstance(v, tuple):  # player = (Player, range(3))
                 factory, _range = v
                 for i in _range:
                     new_k = f"{k}_{str(i)}"
